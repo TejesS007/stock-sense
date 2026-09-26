@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Create Product — StockSense{% endblock %}
+{% block breadcrumb %}Products / New{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">New Product</h1>
+        <p class="page-subtitle">Add a new item to your master inventory catalog</p>
+    </div>
+    <div>
+        <a href="{{ url_for('products.index') }}" class="btn btn-secondary">← Back to Catalog</a>
+    </div>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <form method="POST" action="{{ url_for('products.create') }}" novalidate>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="form-group" style="grid-column: span 2;">
+                <label class="form-label" for="name">Product Name *</label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    class="form-control {% if errors and errors.name %}is-invalid{% endif %}" 
+                    placeholder="e.g. Standard Steel Widget M10" 
+                    value="{{ form_data.name if form_data else '' }}" 
+                    required 
+                    autofocus
+                >
+                {% if errors and errors.name %}
+                    <div class="form-error">
+                        <span>⚠️</span>
+                        <span>{{ errors.name }}</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="sku">SKU / Code *</label>
+                <input 
+                    type="text" 
+                    id="sku" 
+                    name="sku" 
+                    class="form-control {% if errors and errors.sku %}is-invalid{% endif %}" 
+                    placeholder="e.g. WDG-STL-M10" 
+                    value="{{ form_data.sku if form_data else '' }}" 
+                    style="font-family: monospace; text-transform: uppercase;"
+                    required
+                >
+                <div class="form-help">Unique internal stock keeping unit identifier.</div>
+                {% if errors and errors.sku %}
+                    <div class="form-error">
+                        <span>⚠️</span>
+                        <span>{{ errors.sku }}</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="uom">Unit of Measure (UoM)</label>
+                <select id="uom" name="uom" class="form-control">
+                    {% for uom_opt in ['Units', 'Pieces', 'Boxes', 'kg', 'g', 'Meters', 'Liters'] %}
+                        <option value="{{ uom_opt }}" {% if form_data and form_data.uom == uom_opt %}selected{% endif %}>
+                            {{ uom_opt }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group" style="grid-column: span 2;">
+                <label class="form-label" for="category_id">Category</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <select id="category_id" name="category_id" class="form-control">
+                            <option value="">-- Select Existing Category --</option>
+                            {% for cat in categories %}
+                                <option value="{{ cat.id }}" {% if form_data and form_data.category_id == cat.id|string %}selected{% endif %}>
+                                    {{ cat.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-help">Choose an existing category</div>
+                    </div>
+                    <div>
+                        <input 
+                            type="text" 
+                            id="new_category" 
+                            name="new_category" 
+                            class="form-control" 
+                            placeholder="Or type new category name..." 
+                            value="{{ form_data.new_category if form_data else '' }}"
+                        >
+                        <div class="form-help">Create new category inline</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="reorder_point">Reorder Point</label>
+                <input 
+                    type="number" 
+                    step="any" 
+                    min="0" 
+                    id="reorder_point" 
+                    name="reorder_point" 
+                    class="form-control {% if errors and errors.reorder_point %}is-invalid{% endif %}" 
+                    value="{{ form_data.reorder_point if form_data else '0' }}"
+                >
+                <div class="form-help">Threshold below which low-stock warning triggers.</div>
+                {% if errors and errors.reorder_point %}
+                    <div class="form-error">
+                        <span>⚠️</span>
+                        <span>{{ errors.reorder_point }}</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="initial_stock">Initial Stock (Optional)</label>
+                <input 
+                    type="number" 
+                    step="any" 
+                    min="0" 
+                    id="initial_stock" 
+                    name="initial_stock" 
+                    class="form-control {% if errors and errors.initial_stock %}is-invalid{% endif %}" 
+                    placeholder="0"
+                    value="{{ form_data.initial_stock if form_data else '0' }}"
+                >
+                <div class="form-help">Creates starting stock row at the default warehouse location.</div>
+                {% if errors and errors.initial_stock %}
+                    <div class="form-error">
+                        <span>⚠️</span>
+                        <span>{{ errors.initial_stock }}</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 28px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+            <a href="{{ url_for('products.index') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Product</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

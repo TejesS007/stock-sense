@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}New Delivery — StockSense{% endblock %}
+{% block breadcrumb %}Operations / Deliveries / New{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">New Delivery</h1>
+        <p class="page-subtitle">Draft a new customer delivery order</p>
+    </div>
+    <div>
+        <a href="{{ url_for('delivery.index') }}" class="btn btn-secondary">← Back to Deliveries</a>
+    </div>
+</div>
+
+<div class="scaffold-placeholder">
+    <div class="icon-wrapper">📤</div>
+    <h3>Create Delivery Order</h3>
+    <p>
+        Scaffolded route for drafting a delivery move with customer contact, schedule date, and lines.
+    </p>
+    <a href="{{ url_for('delivery.index') }}" class="btn btn-secondary">Back to Deliveries</a>
+</div>
+{% endblock %}

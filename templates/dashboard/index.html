@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — StockSense{% endblock %}
+{% block breadcrumb %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Inventory overview and operational metrics</p>
+    </div>
+</div>
+
+<!-- Scaffold Placeholder Content -->
+<div class="scaffold-placeholder">
+    <div class="icon-wrapper">📊</div>
+    <h3>Dashboard Overview</h3>
+    <p>
+        Scaffolded route for Dashboard KPIs: total products in stock, low/out-of-stock count,
+        pending receipts, pending deliveries, and scheduled internal transfers.
+    </p>
+    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <a href="{{ url_for('products.index') }}" class="btn btn-secondary">View Products</a>
+        <a href="{{ url_for('stock.index') }}" class="btn btn-secondary">View Stock</a>
+        <a href="{{ url_for('receipts.index') }}" class="btn btn-secondary">View Receipts</a>
+        <a href="{{ url_for('delivery.index') }}" class="btn btn-secondary">View Deliveries</a>
+        <a href="{{ url_for('transfers.index') }}" class="btn btn-secondary">View Transfers</a>
+    </div>
+</div>
+{% endblock %}

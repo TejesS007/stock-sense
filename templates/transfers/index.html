@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Internal Transfers — StockSense{% endblock %}
+{% block breadcrumb %}Operations / Internal Transfers{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Internal Transfers</h1>
+        <p class="page-subtitle">Relocate inventory between locations and warehouses (Draft → Done)</p>
+    </div>
+    <div>
+        <a href="{{ url_for('transfers.create') }}" class="btn btn-primary">+ New Transfer</a>
+    </div>
+</div>
+
+<div class="scaffold-placeholder">
+    <div class="icon-wrapper">🔄</div>
+    <h3>Internal Transfers List</h3>
+    <p>
+        Scaffolded route for internal stock movements between source and destination locations.
+        Reference format WH&lt;id&gt;/INT/&lt;seq&gt;.
+    </p>
+    <a href="{{ url_for('transfers.create') }}" class="btn btn-primary">Create New Transfer</a>
+</div>
+{% endblock %}

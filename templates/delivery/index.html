@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Deliveries (OUT) — StockSense{% endblock %}
+{% block breadcrumb %}Operations / Deliveries{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Deliveries (OUT)</h1>
+        <p class="page-subtitle">Outgoing shipments to customers (Draft → Waiting → Ready → Done)</p>
+    </div>
+    <div>
+        <a href="{{ url_for('delivery.create') }}" class="btn btn-primary">+ New Delivery</a>
+    </div>
+</div>
+
+<div class="scaffold-placeholder">
+    <div class="icon-wrapper">📤</div>
+    <h3>Delivery Operations List</h3>
+    <p>
+        Scaffolded route for outgoing stock moves, reference format WH&lt;id&gt;/OUT/&lt;seq&gt;.
+    </p>
+    <a href="{{ url_for('delivery.create') }}" class="btn btn-primary">Create New Delivery</a>
+</div>
+{% endblock %}

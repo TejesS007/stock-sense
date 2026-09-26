@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}StockSense — Inventory Management{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="app-sidebar">
+            <div class="brand-section">
+                <div class="brand-logo-icon">SS</div>
+                <div>
+                    <div class="brand-name">StockSense</div>
+                    <span class="brand-badge">Inventory</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('dashboard.index') }}" class="nav-link">
+                    <span>📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('products.index') }}" class="nav-link">
+                    <span>📦</span>
+                    <span>Products</span>
+                </a>
+                <a href="{{ url_for('stock.index') }}" class="nav-link">
+                    <span>🏷️</span>
+                    <span>Stock On-Hand</span>
+                </a>
+
+                <div class="nav-group-title">Operations</div>
+                <a href="{{ url_for('receipts.index') }}" class="nav-link">
+                    <span>📥</span>
+                    <span>Receipts</span>
+                </a>
+                <a href="{{ url_for('delivery.index') }}" class="nav-link">
+                    <span>📤</span>
+                    <span>Deliveries</span>
+                </a>
+                <a href="{{ url_for('transfers.index') }}" class="nav-link">
+                    <span>🔄</span>
+                    <span>Internal Transfers</span>
+                </a>
+
+                <div class="nav-group-title">Ledger</div>
+                <a href="{{ url_for('move_history.index') }}" class="nav-link">
+                    <span>📑</span>
+                    <span>Move History</span>
+                </a>
+
+                <div class="nav-group-title">Settings</div>
+                <a href="{{ url_for('settings.warehouse') }}" class="nav-link">
+                    <span>🏢</span>
+                    <span>Warehouse</span>
+                </a>
+                <a href="{{ url_for('settings.location') }}" class="nav-link">
+                    <span>📍</span>
+                    <span>Location</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <span>StockSense v1.0</span>
+                {% if current_user %}
+                    <a href="{{ url_for('auth.logout') }}" style="color: #94a3b8; font-size: 0.8rem;">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" style="color: #94a3b8; font-size: 0.8rem;">Login</a>
+                {% endif %}
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="app-main">
+            <header class="app-topbar">
+                <div class="topbar-breadcrumb">
+                    <span>StockSense</span>
+                    <span class="separator">/</span>
+                    <span class="current">{% block breadcrumb %}Overview{% endblock %}</span>
+                </div>
+                <div class="topbar-actions">
+                    {% if current_user %}
+                        <div class="user-profile-badge">
+                            <span class="avatar-circle" style="width: 26px; height: 26px; font-size: 0.75rem;">{{ current_user.login_id[0]|upper }}</span>
+                            <span>{{ current_user.login_id }}</span>
+                        </div>
+                        <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary">Logout</a>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">Login</a>
+                        <a href="{{ url_for('auth.signup') }}" class="btn btn-primary">Sign Up</a>
+                    {% endif %}
+                </div>
+            </header>
+
+            <div class="page-container">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'error' else category }}">
+                                <span>{{ '⚠️' if category in ['danger', 'error', 'warning'] else '✅' }}</span>
+                                <span>{{ message }}</span>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

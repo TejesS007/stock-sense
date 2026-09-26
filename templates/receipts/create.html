@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}New Receipt — StockSense{% endblock %}
+{% block breadcrumb %}Operations / Receipts / New{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">New Receipt</h1>
+        <p class="page-subtitle">Draft an incoming shipment of products from a vendor or supplier</p>
+    </div>
+    <div>
+        <a href="{{ url_for('receipts.index') }}" class="btn btn-secondary">← Back to Receipts</a>
+    </div>
+</div>
+
+<form method="POST" action="{{ url_for('receipts.create') }}" id="receiptForm">
+    <!-- Header Card -->
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 16px; margin-bottom: 20px;">
+            <div>
+                <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 600;">Reference</span>
+                <div style="font-family: monospace; font-size: 1.3rem; font-weight: 700; color: #4338ca;">
+                    {{ auto_ref }}
+                </div>
+            </div>
+            <div>
+                <span class="badge badge-draft" style="font-size: 0.85rem; padding: 6px 12px;">Draft</span>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+            <div class="form-group">
+                <label class="form-label" for="contact">Receive From (Contact / Vendor) *</label>
+                <input 
+                    type="text" 
+                    id="contact" 
+                    name="contact" 
+                    class="form-control" 
+                    placeholder="e.g. Acme Supplies Inc." 
+                    value="{{ form_data.contact if form_data else '' }}" 
+                    required 
+                    autofocus
+                >
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="to_location_id">Destination Location *</label>
+                <select id="to_location_id" name="to_location_id" class="form-control" required>
+                    {% for loc in locations %}
+                        <option value="{{ loc.id }}">{{ loc.warehouse.short_code }}/{{ loc.name }} ({{ loc.short_code }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="schedule_date">Schedule Date</label>
+                <input 
+                    type="date" 
+                    id="schedule_date" 
+                    name="schedule_date" 
+                    class="form-control" 
+                    value="{{ form_data.schedule_date if form_data and form_data.schedule_date else today }}"
+                >
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Responsible User</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    value="{{ responsible_user.login_id if responsible_user else 'Current User' }}" 
+                    readonly 
+                    style="background-color: #f1f5f9; cursor: not-allowed; color: #475569;"
+                >
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Lines Card -->
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <div style="padding: 20px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h3 class="card-title" style="margin-bottom: 0;">Operations Lines</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Specify products and quantities received</p>
+            </div>
+            <button type="button" class="btn btn-secondary" id="addRowBtn" style="font-size: 0.85rem;">
+                <span>+</span>
+                <span>Add Product</span>
+            </button>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem;" id="linesTable">
+                <thead>
+                    <tr style="background-color: #f8fafc; border-bottom: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
+                        <th style="padding: 12px 20px; width: 60%;">Product</th>
+                        <th style="padding: 12px 20px; width: 30%;">Quantity</th>
+                        <th style="padding: 12px 20px; width: 10%; text-align: center;">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="linesBody">
+                    <!-- Default initial row -->
+                    <tr class="line-row" style="border-bottom: 1px solid var(--border-subtle);">
+                        <td style="padding: 14px 20px;">
+                            <select name="product_id[]" class="form-control product-select" required>
+                                <option value="">-- Choose Product --</option>
+                                {% for prod in products %}
+                                    <option value="{{ prod.id }}" data-uom="{{ prod.uom }}">
+                                        {{ prod.name }} ({{ prod.sku }}) - {{ prod.uom }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td style="padding: 14px 20px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="number" name="quantity[]" step="any" min="0.01" class="form-control" value="1.0" required style="max-width: 160px;">
+                                <span class="uom-display" style="font-size: 0.85rem; color: var(--text-muted);">Units</span>
+                            </div>
+                        </td>
+                        <td style="padding: 14px 20px; text-align: center;">
+                            <button type="button" class="btn btn-secondary remove-row-btn" style="padding: 4px 10px; color: var(--danger); font-size: 0.8rem;" title="Remove row">✕</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="padding: 16px 24px; background-color: #f8fafc; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+            <button type="button" class="btn btn-secondary" id="addRowBtnBottom" style="font-size: 0.85rem;">
+                + Add Another Product
+            </button>
+            <div style="display: flex; gap: 12px;">
+                <a href="{{ url_for('receipts.index') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save as Draft</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<template id="rowTemplate">
+    <tr class="line-row" style="border-bottom: 1px solid var(--border-subtle);">
+        <td style="padding: 14px 20px;">
+            <select name="product_id[]" class="form-control product-select" required>
+                <option value="">-- Choose Product --</option>
+                {% for prod in products %}
+                    <option value="{{ prod.id }}" data-uom="{{ prod.uom }}">
+                        {{ prod.name }} ({{ prod.sku }}) - {{ prod.uom }}
+                    </option>
+                {% endfor %}
+            </select>
+        </td>
+        <td style="padding: 14px 20px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <input type="number" name="quantity[]" step="any" min="0.01" class="form-control" value="1.0" required style="max-width: 160px;">
+                <span class="uom-display" style="font-size: 0.85rem; color: var(--text-muted);">Units</span>
+            </div>
+        </td>
+        <td style="padding: 14px 20px; text-align: center;">
+            <button type="button" class="btn btn-secondary remove-row-btn" style="padding: 4px 10px; color: var(--danger); font-size: 0.8rem;" title="Remove row">✕</button>
+        </td>
+    </tr>
+</template>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const linesBody = document.getElementById('linesBody');
+    const rowTemplate = document.getElementById('rowTemplate');
+
+    function attachRowListeners(row) {
+        const select = row.querySelector('.product-select');
+        const uomDisplay = row.querySelector('.uom-display');
+        const removeBtn = row.querySelector('.remove-row-btn');
+
+        if (select && uomDisplay) {
+            select.addEventListener('change', () => {
+                const opt = select.selectedOptions[0];
+                const uom = opt ? opt.getAttribute('data-uom') : 'Units';
+                uomDisplay.textContent = uom || 'Units';
+            });
+        }
+
+        if (removeBtn) {
+            removeBtn.addEventListener('click', () => {
+                const rows = linesBody.querySelectorAll('.line-row');
+                if (rows.length > 1) {
+                    row.remove();
+                } else {
+                    alert('At least one product line is required.');
+                }
+            });
+        }
+    }
+
+    function addRow() {
+        const clone = rowTemplate.content.cloneNode(true);
+        const newRow = clone.querySelector('.line-row');
+        linesBody.appendChild(clone);
+        attachRowListeners(linesBody.lastElementChild);
+    }
+
+    document.getElementById('addRowBtn').addEventListener('click', addRow);
+    document.getElementById('addRowBtnBottom').addEventListener('click', addRow);
+
+    // Attach to initial rows
+    document.querySelectorAll('.line-row').forEach(attachRowListeners);
+});
+</script>
+{% endblock %}

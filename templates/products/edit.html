@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Edit {{ product.name }} — StockSense{% endblock %}
+{% block breadcrumb %}Products / Edit / {{ product.sku }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Edit Product</h1>
+        <p class="page-subtitle">Update details for <strong>{{ product.name }}</strong> (SKU: {{ product.sku }})</p>
+    </div>
+    <div>
+        <a href="{{ url_for('products.index') }}" class="btn btn-secondary">← Back to Catalog</a>
+    </div>
+</div>
+
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <form method="POST" action="{{ url_for('products.edit', id=product.id) }}" novalidate>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="form-group" style="grid-column: span 2;">
+                <label class="form-label" for="name">Product Name *</label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    class="form-control {% if errors and errors.name %}is-invalid{% endif %}" 
+                    value="{{ form_data.name if form_data else product.name }}" 
+                    required 
+                    autofocus
+                >
+                {% if errors and errors.name %}
+                    <div class="form-error">
+                        <span>⚠️</span>
+                        <span>{{ errors.name }}</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="sku">SKU / Code *</label>
+                <input 
+                    type="text" 
+                    id="sku" 
+                    name="sku" 
+                    class="form-control {% if errors and errors.sku %}is-invalid{% endif %}" 
+                    value="{{ form_data.sku if form_data else product.sku }}" 
+                    style="font-family: monospace; text-transform: uppercase;"
+                    required
+                >
+                {% if errors and errors.sku %}
+                    <div class="form-error">
+                        <span>⚠️</span>
+                        <span>{{ errors.sku }}</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="uom">Unit of Measure (UoM)</label>
+                <select id="uom" name="uom" class="form-control">
+                    {% for uom_opt in ['Units', 'Pieces', 'Boxes', 'kg', 'g', 'Meters', 'Liters'] %}
+                        <option value="{{ uom_opt }}" {% if (form_data and form_data.uom == uom_opt) or (not form_data and product.uom == uom_opt) %}selected{% endif %}>
+                            {{ uom_opt }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group" style="grid-column: span 2;">
+                <label class="form-label" for="category_id">Category</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                        <select id="category_id" name="category_id" class="form-control">
+                            <option value="">-- Select Existing Category --</option>
+                            {% for cat in categories %}
+                                <option value="{{ cat.id }}" {% if (form_data and form_data.category_id == cat.id|string) or (not form_data and product.category_id == cat.id) %}selected{% endif %}>
+                                    {{ cat.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-help">Current or existing category</div>
+                    </div>
+                    <div>
+                        <input 
+                            type="text" 
+                            id="new_category" 
+                            name="new_category" 
+                            class="form-control" 
+                            placeholder="Or type new category name..." 
+                            value="{{ form_data.new_category if form_data else '' }}"
+                        >
+                        <div class="form-help">Create new category inline</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="reorder_point">Reorder Point</label>
+                <input 
+                    type="number" 
+                    step="any" 
+                    min="0" 
+                    id="reorder_point" 
+                    name="reorder_point" 
+                    class="form-control {% if errors and errors.reorder_point %}is-invalid{% endif %}" 
+                    value="{{ form_data.reorder_point if form_data else product.reorder_point }}"
+                >
+                <div class="form-help">Threshold below which low-stock warning triggers.</div>
+                {% if errors and errors.reorder_point %}
+                    <div class="form-error">
+                        <span>⚠️</span>
+                        <span>{{ errors.reorder_point }}</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Current Total On-Hand</label>
+                <div style="padding: 10px 14px; background: #f8fafc; border: 1px solid var(--border-color); border-radius: var(--radius-sm); font-weight: 700; color: var(--text-main);">
+                    {{ "%.2f"|format(product.total_on_hand)|replace('.00', '') }} {{ product.uom }}
+                    {% if product.is_low_stock %}
+                        <span class="badge" style="background: var(--warning-light); color: var(--warning); margin-left: 8px;">⚠️ Low Stock</span>
+                    {% endif %}
+                </div>
+                <div class="form-help">Physical stock is adjusted via Receipts or Operations.</div>
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 28px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+            <a href="{{ url_for('products.index') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Update Product</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

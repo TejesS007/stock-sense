@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Delivery #{{ delivery_id }} — StockSense{% endblock %}
+{% block breadcrumb %}Operations / Deliveries / #{{ delivery_id }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Delivery #{{ delivery_id }}</h1>
+        <p class="page-subtitle">Operation Details & Outgoing Lines</p>
+    </div>
+    <div>
+        <a href="{{ url_for('delivery.index') }}" class="btn btn-secondary">← Back to Deliveries</a>
+    </div>
+</div>
+
+<div class="scaffold-placeholder">
+    <div class="icon-wrapper">📦</div>
+    <h3>Delivery Detail View (ID: {{ delivery_id }})</h3>
+    <p>
+        Scaffolded route for delivery status lifecycle (Draft → Waiting → Ready → Done),
+        stock reservation checks, and validation.
+    </p>
+    <a href="{{ url_for('delivery.index') }}" class="btn btn-secondary">Back to Deliveries</a>
+</div>
+{% endblock %}

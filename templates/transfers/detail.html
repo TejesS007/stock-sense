@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Internal Transfer #{{ transfer_id }} — StockSense{% endblock %}
+{% block breadcrumb %}Operations / Transfers / #{{ transfer_id }}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Internal Transfer #{{ transfer_id }}</h1>
+        <p class="page-subtitle">Operation Details & Location Reallocation</p>
+    </div>
+    <div>
+        <a href="{{ url_for('transfers.index') }}" class="btn btn-secondary">← Back to Transfers</a>
+    </div>
+</div>
+
+<div class="scaffold-placeholder">
+    <div class="icon-wrapper">🔄</div>
+    <h3>Transfer Detail View (ID: {{ transfer_id }})</h3>
+    <p>
+        Scaffolded route for internal transfer lifecycle (Draft → Done),
+        source location to destination location movement lines.
+    </p>
+    <a href="{{ url_for('transfers.index') }}" class="btn btn-secondary">Back to Transfers</a>
+</div>
+{% endblock %}
