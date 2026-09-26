@@ -7,16 +7,53 @@
 <div class="page-header">
     <div>
         <h1 class="page-title">Move History</h1>
-        <p class="page-subtitle">Single unified ledger of all stock moves across all warehouses</p>
+        <p class="page-subtitle">Single unified ledger of all stock moves — one row per product line</p>
     </div>
 </div>
 
-<div class="scaffold-placeholder">
-    <div class="icon-wrapper">📑</div>
-    <h3>Unified Move History Ledger</h3>
-    <p>
-        Scaffolded route for the comprehensive move history ledger.
-        Visual indicators will show: IN rows in green, OUT rows in red, and INTERNAL / ADJUSTMENT rows in blue.
-    </p>
+<div class="card" style="padding: 0; overflow: hidden;">
+    {% set has_rows = moves|selectattr('lines')|list|length > 0 %}
+    {% if has_rows %}
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem;">
+            <thead>
+                <tr style="background-color: #f8fafc; border-bottom: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
+                    <th style="padding: 12px 20px;">Reference</th>
+                    <th style="padding: 12px 20px;">Type</th>
+                    <th style="padding: 12px 20px;">Product</th>
+                    <th style="padding: 12px 20px; text-align: right;">Quantity</th>
+                    <th style="padding: 12px 20px;">From</th>
+                    <th style="padding: 12px 20px;">To</th>
+                    <th style="padding: 12px 20px;">Date</th>
+                    <th style="padding: 12px 20px; text-align: center;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for move in moves %}
+                    {% for line in move.lines %}
+                    {% set row_color = '#166534' if move.type == 'IN' else ('#991b1b' if move.type == 'OUT' else '#1e40af') %}
+                    {% set row_bg = '#f0fdf4' if move.type == 'IN' else ('#fef2f2' if move.type == 'OUT' else '#eff6ff') %}
+                    <tr style="border-bottom: 1px solid var(--border-subtle); background-color: {{ row_bg }};">
+                        <td style="padding: 12px 20px; font-weight: 600; font-family: monospace; color: {{ row_color }};">{{ move.reference }}</td>
+                        <td style="padding: 12px 20px; font-weight: 700; color: {{ row_color }};">{{ move.type }}</td>
+                        <td style="padding: 12px 20px;">{{ line.product.name }}</td>
+                        <td style="padding: 12px 20px; text-align: right; font-weight: 600;">{{ "%g"|format(line.quantity) }} {{ line.product.uom }}</td>
+                        <td style="padding: 12px 20px; color: var(--text-muted);">{{ move.from_location.name if move.from_location else (move.contact if move.type == 'IN' else '—') }}</td>
+                        <td style="padding: 12px 20px; color: var(--text-muted);">{{ move.to_location.name if move.to_location else (move.contact if move.type == 'OUT' else '—') }}</td>
+                        <td style="padding: 12px 20px; color: var(--text-muted);">{{ move.schedule_date.strftime('%Y-%m-%d') if move.schedule_date else '—' }}</td>
+                        <td style="padding: 12px 20px; text-align: center;"><span class="badge badge-{{ move.status|lower }}">{{ move.status }}</span></td>
+                    </tr>
+                    {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="scaffold-placeholder" style="border: none; background: transparent; padding: 60px 20px;">
+        <div class="icon-wrapper">📑</div>
+        <h3>No Moves Logged Yet</h3>
+        <p>Receipts, deliveries, transfers, and adjustments will appear here once created.</p>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

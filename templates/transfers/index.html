@@ -7,20 +7,50 @@
 <div class="page-header">
     <div>
         <h1 class="page-title">Internal Transfers</h1>
-        <p class="page-subtitle">Relocate inventory between locations and warehouses (Draft → Done)</p>
+        <p class="page-subtitle">Move stock between locations (Draft → Done)</p>
     </div>
-    <div>
-        <a href="{{ url_for('transfers.create') }}" class="btn btn-primary">+ New Transfer</a>
-    </div>
+    <div><a href="{{ url_for('transfers.create') }}" class="btn btn-primary"><span>+</span><span>New Transfer</span></a></div>
 </div>
 
-<div class="scaffold-placeholder">
-    <div class="icon-wrapper">🔄</div>
-    <h3>Internal Transfers List</h3>
-    <p>
-        Scaffolded route for internal stock movements between source and destination locations.
-        Reference format WH&lt;id&gt;/INT/&lt;seq&gt;.
-    </p>
-    <a href="{{ url_for('transfers.create') }}" class="btn btn-primary">Create New Transfer</a>
+<div class="card" style="padding: 0; overflow: hidden;">
+    {% if moves %}
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem;">
+            <thead>
+                <tr style="background-color: #f8fafc; border-bottom: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
+                    <th style="padding: 14px 20px;">Reference</th>
+                    <th style="padding: 14px 20px;">From</th>
+                    <th style="padding: 14px 20px;">To</th>
+                    <th style="padding: 14px 20px;">Schedule Date</th>
+                    <th style="padding: 14px 20px; text-align: center;">Status</th>
+                    <th style="padding: 14px 20px; text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for move in moves %}
+                <tr style="border-bottom: 1px solid var(--border-subtle);">
+                    <td style="padding: 16px 20px; font-weight: 600;">
+                        <a href="{{ url_for('transfers.detail', id=move.id) }}" style="font-family: monospace; color: #4338ca; text-decoration: none;">{{ move.reference }}</a>
+                    </td>
+                    <td style="padding: 16px 20px; color: var(--text-muted);">{{ move.from_location.name if move.from_location else '—' }}</td>
+                    <td style="padding: 16px 20px; color: var(--text-muted);">{{ move.to_location.name if move.to_location else '—' }}</td>
+                    <td style="padding: 16px 20px; color: var(--text-muted);">{{ move.schedule_date.strftime('%Y-%m-%d') if move.schedule_date else '—' }}</td>
+                    <td style="padding: 16px 20px; text-align: center;"><span class="badge badge-{{ move.status|lower }}">{{ move.status }}</span></td>
+                    <td style="padding: 16px 20px; text-align: right;">
+                        <a href="{{ url_for('transfers.detail', id=move.id) }}" class="btn btn-secondary" style="padding: 5px 12px; font-size: 0.8rem;">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="scaffold-placeholder" style="border: none; background: transparent; padding: 60px 20px;">
+        <div class="icon-wrapper">🔄</div>
+        <h3>No Internal Transfers Logged</h3>
+        <p>There are no internal stock transfers registered yet.</p>
+        <a href="{{ url_for('transfers.create') }}" class="btn btn-primary">+ Create New Transfer</a>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

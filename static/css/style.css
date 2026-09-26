@@ -443,7 +443,8 @@ a:hover {
   margin-top: 4px;
 }
 
-.form-error {
+.form-error,
+.field-error {
   color: var(--danger);
   font-size: 0.8rem;
   font-weight: 500;

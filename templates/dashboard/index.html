@@ -11,20 +11,69 @@
     </div>
 </div>
 
-<!-- Scaffold Placeholder Content -->
-<div class="scaffold-placeholder">
-    <div class="icon-wrapper">📊</div>
-    <h3>Dashboard Overview</h3>
-    <p>
-        Scaffolded route for Dashboard KPIs: total products in stock, low/out-of-stock count,
-        pending receipts, pending deliveries, and scheduled internal transfers.
-    </p>
-    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-        <a href="{{ url_for('products.index') }}" class="btn btn-secondary">View Products</a>
-        <a href="{{ url_for('stock.index') }}" class="btn btn-secondary">View Stock</a>
-        <a href="{{ url_for('receipts.index') }}" class="btn btn-secondary">View Receipts</a>
-        <a href="{{ url_for('delivery.index') }}" class="btn btn-secondary">View Deliveries</a>
-        <a href="{{ url_for('transfers.index') }}" class="btn btn-secondary">View Transfers</a>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 24px;">
+    <div class="card">
+        <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Total Products</div>
+        <div style="font-size: 2rem; font-weight: 700; margin-top: 6px;">{{ total_products }}</div>
     </div>
+    <div class="card">
+        <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Low Stock</div>
+        <div style="font-size: 2rem; font-weight: 700; margin-top: 6px; color: #b45309;">{{ low_stock_count }}</div>
+    </div>
+    <div class="card">
+        <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Out of Stock</div>
+        <div style="font-size: 2rem; font-weight: 700; margin-top: 6px; color: var(--danger);">{{ out_of_stock_count }}</div>
+    </div>
+    <div class="card">
+        <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Transfers Scheduled</div>
+        <div style="font-size: 2rem; font-weight: 700; margin-top: 6px;">{{ transfers_scheduled }}</div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+    <div class="card">
+        <h3 class="card-title">Receipts</h3>
+        <div style="display: flex; gap: 24px; margin-top: 8px;">
+            <div>
+                <div style="font-size: 1.6rem; font-weight: 700;">{{ receipts_summary.to_action }}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">To action</div>
+            </div>
+            <div>
+                <div style="font-size: 1.6rem; font-weight: 700; color: var(--danger);">{{ receipts_summary.late }}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Late</div>
+            </div>
+            <div>
+                <div style="font-size: 1.6rem; font-weight: 700; color: var(--text-muted);">{{ receipts_summary.total }}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Total ops</div>
+            </div>
+        </div>
+        <a href="{{ url_for('receipts.index') }}" class="btn btn-secondary" style="margin-top: 16px;">View Receipts</a>
+    </div>
+
+    <div class="card">
+        <h3 class="card-title">Deliveries</h3>
+        <div style="display: flex; gap: 24px; margin-top: 8px;">
+            <div>
+                <div style="font-size: 1.6rem; font-weight: 700;">{{ delivery_summary.to_action }}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">To action</div>
+            </div>
+            <div>
+                <div style="font-size: 1.6rem; font-weight: 700; color: var(--danger);">{{ delivery_summary.late }}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Late</div>
+            </div>
+            <div>
+                <div style="font-size: 1.6rem; font-weight: 700; color: var(--text-muted);">{{ delivery_summary.total }}</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted);">Total ops</div>
+            </div>
+        </div>
+        <a href="{{ url_for('delivery.index') }}" class="btn btn-secondary" style="margin-top: 16px;">View Deliveries</a>
+    </div>
+</div>
+
+<div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 24px;">
+    <a href="{{ url_for('products.index') }}" class="btn btn-secondary">View Products</a>
+    <a href="{{ url_for('stock.index') }}" class="btn btn-secondary">View Stock</a>
+    <a href="{{ url_for('transfers.index') }}" class="btn btn-secondary">View Transfers</a>
+    <a href="{{ url_for('move_history.index') }}" class="btn btn-secondary">View Move History</a>
 </div>
 {% endblock %}

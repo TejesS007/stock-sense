@@ -1,26 +1,98 @@
 {% extends "base.html" %}
 
-{% block title %}Delivery #{{ delivery_id }} — StockSense{% endblock %}
-{% block breadcrumb %}Operations / Deliveries / #{{ delivery_id }}{% endblock %}
+{% block title %}Delivery {{ move.reference }} — StockSense{% endblock %}
+{% block breadcrumb %}Operations / Deliveries / {{ move.reference }}{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <div>
-        <h1 class="page-title">Delivery #{{ delivery_id }}</h1>
-        <p class="page-subtitle">Operation Details & Outgoing Lines</p>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <a href="{{ url_for('delivery.index') }}" class="btn btn-secondary" style="padding: 7px 12px;">← Back</a>
+        <h1 class="page-title" style="margin: 0; font-family: monospace; font-size: 1.6rem; color: #4338ca;">{{ move.reference }}</h1>
+        <span class="badge badge-{{ move.status|lower }}" style="font-size: 0.85rem; padding: 6px 12px;">{{ move.status }}</span>
     </div>
-    <div>
-        <a href="{{ url_for('delivery.index') }}" class="btn btn-secondary">← Back to Deliveries</a>
+
+    <div style="display: flex; align-items: center; gap: 10px;">
+        {% if move.status in ['Draft', 'Waiting', 'Ready'] %}
+            <form method="POST" action="{{ url_for('delivery.validate', id=move.id) }}" style="display: inline;">
+                {% if move.status == 'Ready' %}
+                    <button type="submit" class="btn btn-primary" style="background-color: var(--success); border-color: var(--success);">
+                        ✓ Validate & Ship (Done)
+                    </button>
+                {% else %}
+                    <button type="submit" class="btn btn-primary">↻ Check Availability</button>
+                {% endif %}
+            </form>
+        {% endif %}
+
+        {% if move.status == 'Done' %}
+            <button type="button" class="btn btn-secondary" onclick="window.print()" title="Print operation slip">🖨️ Print Slip</button>
+        {% else %}
+            <button type="button" class="btn btn-secondary" disabled style="opacity: 0.5; cursor: not-allowed;" title="Print is only enabled once a move is Done">🖨️ Print (Done only)</button>
+        {% endif %}
+
+        {% if move.status not in ['Done', 'Canceled'] %}
+            <form method="POST" action="{{ url_for('delivery.cancel', id=move.id) }}" onsubmit="return confirm('Cancel this delivery? Stock will not be touched.');" style="display: inline;">
+                <button type="submit" class="btn btn-secondary" style="color: var(--danger); border-color: #fecaca;">✕ Cancel</button>
+            </form>
+        {% endif %}
     </div>
 </div>
 
-<div class="scaffold-placeholder">
-    <div class="icon-wrapper">📦</div>
-    <h3>Delivery Detail View (ID: {{ delivery_id }})</h3>
-    <p>
-        Scaffolded route for delivery status lifecycle (Draft → Waiting → Ready → Done),
-        stock reservation checks, and validation.
-    </p>
-    <a href="{{ url_for('delivery.index') }}" class="btn btn-secondary">Back to Deliveries</a>
+<div class="card">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px;">
+        <div>
+            <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Deliver To (Contact)</div>
+            <div style="font-size: 1.05rem; font-weight: 600; margin-top: 4px;">{{ move.contact or '—' }}</div>
+        </div>
+        <div>
+            <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Source Location</div>
+            <div style="font-size: 1.05rem; font-weight: 600; margin-top: 4px;">
+                {{ move.from_location.warehouse.short_code }}/{{ move.from_location.name }} ({{ move.from_location.short_code }})
+            </div>
+        </div>
+        <div>
+            <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Schedule Date</div>
+            <div style="font-size: 1.05rem; font-weight: 600; margin-top: 4px;">{{ move.schedule_date.strftime('%B %d, %Y') if move.schedule_date else '—' }}</div>
+        </div>
+        <div>
+            <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Responsible</div>
+            <div style="font-size: 1.05rem; font-weight: 600; margin-top: 4px;">{{ move.responsible_user.login_id if move.responsible_user else '—' }}</div>
+        </div>
+    </div>
+    {% if move.status == 'Waiting' %}
+    <div style="margin-top: 16px; padding: 10px 14px; background: #fffbeb; color: #92400e; border-radius: var(--radius-sm); font-size: 0.85rem;">
+        ⏳ Waiting — one or more lines exceed free-to-use stock at the source location. Click "Check Availability" once stock arrives.
+    </div>
+    {% endif %}
+</div>
+
+<div class="card" style="padding: 0; overflow: hidden;">
+    <div style="padding: 18px 24px; border-bottom: 1px solid var(--border-color);">
+        <h3 class="card-title" style="margin-bottom: 0;">Items to Deliver</h3>
+    </div>
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem;">
+            <thead>
+                <tr style="background-color: #f8fafc; border-bottom: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
+                    <th style="padding: 12px 24px;">Product</th>
+                    <th style="padding: 12px 24px;">SKU / Code</th>
+                    <th style="padding: 12px 24px; text-align: right;">Quantity</th>
+                    <th style="padding: 12px 24px;">Unit of Measure</th>
+                    <th style="padding: 12px 24px; text-align: right;">Current On-Hand</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for line in move.lines %}
+                <tr style="border-bottom: 1px solid var(--border-subtle);">
+                    <td style="padding: 16px 24px; font-weight: 600;">{{ line.product.name }}</td>
+                    <td style="padding: 16px 24px; font-family: monospace; color: #4338ca; font-weight: 600;">{{ line.product.sku }}</td>
+                    <td style="padding: 16px 24px; text-align: right; font-weight: 700; font-size: 1rem;">{{ "%g"|format(line.quantity) }}</td>
+                    <td style="padding: 16px 24px; color: var(--text-muted);">{{ line.product.uom }}</td>
+                    <td style="padding: 16px 24px; text-align: right; color: var(--text-muted);">{{ "%g"|format(line.product.total_on_hand) }} {{ line.product.uom }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}
