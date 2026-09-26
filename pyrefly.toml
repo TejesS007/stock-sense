@@ -1,0 +1,4 @@
+[errors]
+unexpected-keyword = false
+missing-attribute = false
+bad-argument-type = false
